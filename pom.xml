@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>touchhome-bundle-dropbox</artifactId>
+  <dependencies>
+    <dependency>
+      <artifactId>dropbox-core-sdk</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
+        </exclusion>
+      </exclusions>
+      <groupId>com.dropbox.core</groupId>
+      <version>5.4.4</version>
+    </dependency>
+  </dependencies>
+  <description>storage:Dropbox storage</description>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Dropbox</name>
+  <packaging>jar</packaging>
+
+  <parent>
+    <artifactId>touchhome-addon</artifactId>
+    <groupId>org.touchhome</groupId>
+    <version>1.2.1-SNAPSHOT</version>
+  </parent>
+
+  <version>1.0.0-SNAPSHOT</version>
+</project>

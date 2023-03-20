@@ -1,0 +1,16 @@
+{
+  "workspace": {
+    "dropbox-storage": "Dropbox"
+  },
+  "selection": {
+    "DropboxEntity": "Dropbox"
+  },
+  "field": {
+    "dropboxApiToken": "Api token"
+  },
+  "help": {
+    "field": {
+      "dropboxApiToken": "Api token. See description to acquire token"
+    }
+  }
+}
