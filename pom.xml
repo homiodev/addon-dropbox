@@ -22,7 +22,7 @@
   <packaging>jar</packaging>
 
   <parent>
-    <artifactId>addon</artifactId>
+    <artifactId>addon-parent</artifactId>
     <groupId>org.touchhome</groupId>
     <version>1.2.1</version>
   </parent>
