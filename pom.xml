@@ -23,7 +23,7 @@
   <parent>
     <artifactId>touchhome-addon</artifactId>
     <groupId>org.touchhome</groupId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.1</version>
   </parent>
 
   <version>1.0.0-SNAPSHOT</version>
