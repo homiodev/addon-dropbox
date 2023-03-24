@@ -15,7 +15,7 @@
       <version>5.4.4</version>
     </dependency>
   </dependencies>
-  <description>storage:Dropbox storage</description>
+  <description>Dropbox storage</description>
   <modelVersion>4.0.0</modelVersion>
   <name>Dropbox</name>
   <packaging>jar</packaging>
