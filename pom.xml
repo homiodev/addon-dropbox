@@ -19,6 +19,10 @@
   <modelVersion>4.0.0</modelVersion>
   <name>Dropbox</name>
   <packaging>jar</packaging>
+  
+  <properties>
+    <category>Storage</category>
+  </properties>
 
   <parent>
     <artifactId>addon-parent</artifactId>
