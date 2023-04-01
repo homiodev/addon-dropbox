@@ -1,4 +1,4 @@
-package org.touchhome.bundle.dropbox;
+package org.homio.bundle.dropbox;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
@@ -29,8 +29,8 @@ import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.touchhome.bundle.api.fs.FileSystemProvider;
-import org.touchhome.bundle.api.fs.TreeNode;
+import org.homio.bundle.api.fs.FileSystemProvider;
+import org.homio.bundle.api.fs.TreeNode;
 
 public class DropboxFileSystem implements FileSystemProvider {
 

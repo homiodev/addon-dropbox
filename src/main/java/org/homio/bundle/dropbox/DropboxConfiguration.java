@@ -1,7 +1,7 @@
-package org.touchhome.bundle.dropbox;
+package org.homio.bundle.dropbox;
 
 import org.springframework.context.annotation.Configuration;
-import org.touchhome.bundle.api.BundleConfiguration;
+import org.homio.bundle.api.BundleConfiguration;
 
 @Configuration
 @BundleConfiguration
