@@ -1,8 +1,10 @@
 {
-  "workspace": {
-    "dropbox-storage": "Dropbox"
+  "W": {
+    "ERROR": {
+      "NO_API_TOKEN": "No api token provided"
+    }
   },
-  "selection": {
+  "SELECTION": {
     "DropboxEntity": "Dropbox"
   },
   "field": {

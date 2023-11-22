@@ -1,10 +1,10 @@
-package org.homio.bundle.dropbox;
+package org.homio.addon.dropbox;
 
+import org.homio.api.AddonConfiguration;
 import org.springframework.context.annotation.Configuration;
-import org.homio.bundle.api.BundleConfiguration;
 
 @Configuration
-@BundleConfiguration
+@AddonConfiguration
 public class DropboxConfiguration {
 
 }

@@ -1,4 +1,4 @@
-package org.homio.bundle.dropbox;
+package org.homio.addon.dropbox;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
@@ -7,7 +7,9 @@ import com.dropbox.core.v2.files.DeleteResult;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.MediaInfo;
 import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.files.SharingInfo;
 import com.dropbox.core.v2.users.SpaceUsage;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -27,10 +29,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
+import org.homio.api.fs.FileSystemProvider;
+import org.homio.api.fs.TreeNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.homio.bundle.api.fs.FileSystemProvider;
-import org.homio.bundle.api.fs.TreeNode;
 
 public class DropboxFileSystem implements FileSystemProvider {
 
@@ -91,7 +93,13 @@ public class DropboxFileSystem implements FileSystemProvider {
 
   @Override
   @SneakyThrows
-  public InputStream getEntryInputStream(@NotNull String id) {
+  public boolean exists(@NotNull String id) {
+    return fileCache.get(id) != null;
+  }
+
+  @Override
+  @SneakyThrows
+  public @NotNull InputStream getEntryInputStream(@NotNull String id) {
     return getDrive().files().download(id).getInputStream();
   }
 
@@ -216,7 +224,7 @@ public class DropboxFileSystem implements FileSystemProvider {
 
   @Override
   @SneakyThrows
-  public Set<TreeNode> getChildren(@NotNull String parentId) {
+  public @NotNull Set<TreeNode> getChildren(@NotNull String parentId) {
     ListFolderResult result = getDrive().files().listFolder(parentId);
     Set<TreeNode> files = new HashSet<>();
     while (true) {
@@ -259,15 +267,24 @@ public class DropboxFileSystem implements FileSystemProvider {
   }
 
   private TreeNode buildTreeNode(Metadata metadata) {
-    if (metadata instanceof FolderMetadata) {
+    if (metadata instanceof FolderMetadata fm) {
       boolean hasChildren = true;
-      return new TreeNode(true, !hasChildren,
-          metadata.getName(), ((FolderMetadata) metadata).getId(), null, null, this, null);
+      TreeNode node = new TreeNode(true, !hasChildren,
+          fm.getName(), fm.getId(), null, null, this, null);
+      node.getAttributes().setReadOnly(isReadOnly(fm.getSharingInfo()));
+      return node;
     }
     FileMetadata file = (FileMetadata) metadata;
-    return new TreeNode(false, true,
+    MediaInfo mediaInfo = file.getMediaInfo();
+    TreeNode node = new TreeNode(false, true,
         file.getName(), file.getId(), file.getSize(), file.getServerModified().getTime(), this,
-        file.getMediaInfo().toString());
+        mediaInfo == null ? null : mediaInfo.toString());
+    node.getAttributes().setReadOnly(isReadOnly(file.getSharingInfo()));
+    return node;
+  }
+
+  private boolean isReadOnly(SharingInfo sharingInfo) {
+    return sharingInfo != null && sharingInfo.getReadOnly();
   }
 
   private TreeNode buildRoot(Collection<Metadata> files) {

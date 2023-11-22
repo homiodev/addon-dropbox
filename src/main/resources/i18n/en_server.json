@@ -1,5 +1,5 @@
 {
-  "dropbox": {
-    "description": "Dropbox bundle require Access Token. First you need create Dropbox 'app' <a target='_blank' href='https://www.dropbox.com/developers/apps/create'>Create app</a>. Select 'Scoped access', type access - full, type any app name. After app created go to permissions and set all checkboxes under 'Files and folders' section. Select 'Access token expiration' - No expiration, then press 'Generated access token' to obtain access token"
+  "DROPBOX": {
+    "DESCRIPTION": "Dropbox addon require Access Token. <ul><li><a target='_blank' href='https://www.dropbox.com/developers/apps/create'>Create app</a> or <a target='_blank' href='https://www.dropbox.com/developers/apps'>Select existed app</a>.</li><li>Select 'Scoped access', type access - full, type any app name.</li><li>Go to permissions and set all checkboxes under 'Files and folders' section.</li><li>Select 'Access token expiration' - No expiration</li><li>Press 'Generated access token' to obtain access token</li></ul>"
   }
 }

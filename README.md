@@ -1,8 +1,8 @@
 [![GitHub Release][releases-shield]][releases]
 
-## Dropbox bundle
+## Dropbox addon
 
-Dropbox bundle includes:
+Dropbox addon includes:
 
 1. Workspace extension for read/write/delete files
 
