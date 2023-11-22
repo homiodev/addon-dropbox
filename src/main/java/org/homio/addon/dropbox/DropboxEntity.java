@@ -83,7 +83,7 @@ public class DropboxEntity extends StorageEntity
 
   @Override
   protected @NotNull String getDevicePrefix() {
-    return "dropbox_";
+    return "dropbox";
   }
 
   @Override
