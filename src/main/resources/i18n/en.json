@@ -1,9 +1,4 @@
 {
-  "W": {
-    "ERROR": {
-      "NO_API_TOKEN": "No api token provided"
-    }
-  },
   "SELECTION": {
     "DropboxEntity": "Dropbox"
   },

@@ -68,7 +68,7 @@ public class DropboxEntity extends StorageEntity
 
   @Override
   public long getEntityServiceHashCode() {
-    return getEntityID().hashCode() + getDropboxApiToken().asString().hashCode();
+    return getConnectionHashCode();
   }
 
   @Override
