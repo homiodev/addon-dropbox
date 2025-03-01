@@ -2,6 +2,7 @@ package org.homio.addon.dropbox;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.InvalidAccessTokenException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.DeleteResult;
 import com.dropbox.core.v2.files.FileMetadata;
@@ -15,6 +16,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Bytes;
+import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
+import org.homio.api.fs.FileSystemProvider;
+import org.homio.api.fs.TreeNode;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -24,15 +32,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
-import org.homio.api.fs.FileSystemProvider;
-import org.homio.api.fs.TreeNode;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class DropboxFileSystem implements FileSystemProvider {
 
@@ -47,11 +50,11 @@ public class DropboxFileSystem implements FileSystemProvider {
   public DropboxFileSystem(DropboxEntity entity) {
     this.entity = entity;
     this.fileCache = CacheBuilder.newBuilder().
-        expireAfterWrite(1, TimeUnit.HOURS).build(new CacheLoader<>() {
-          public Metadata load(@NotNull String id) throws DbxException {
-            return getDrive().files().getMetadata(id);
-          }
-        });
+      expireAfterWrite(1, TimeUnit.HOURS).build(new CacheLoader<>() {
+        public Metadata load(@NotNull String id) throws DbxException {
+          return getDrive().files().getMetadata(id);
+        }
+      });
   }
 
   @SneakyThrows
@@ -81,6 +84,10 @@ public class DropboxFileSystem implements FileSystemProvider {
       return true;
     } catch (Exception ex) {
       entity.setStatusError(ex);
+      //noinspection ConstantValue
+      if (ex instanceof InvalidAccessTokenException tokenException) {
+        entity.setStatusError(tokenException.getAuthError().toString());
+      }
       return false;
     }
   }
@@ -117,23 +124,28 @@ public class DropboxFileSystem implements FileSystemProvider {
   }
 
   @Override
-  public long getTotalSpace() {
+  public Long getTotalSpace() {
     return getAbout().getAllocation().getIndividualValue().getAllocated();
   }
 
   @Override
-  public long getUsedSpace() {
+  public Long getUsedSpace() {
     return getAbout().getUsed();
   }
 
   @Override
+  public @NotNull String getFileSystemId() {
+    return entity.getEntityID();
+  }
+
+  @Override
   @SneakyThrows
-  public TreeNode delete(@NotNull Set<String> ids) {
+  public @NotNull TreeNode delete(@NotNull Set<String> ids) {
     List<Metadata> files = new ArrayList<>();
     for (String id : ids) {
       fileCache.invalidate(id);
       DeleteResult deleteResult = getDrive().files().deleteV2(id);
-      if (deleteResult != null && deleteResult.getMetadata() != null) {
+      if (deleteResult != null) {
         files.add(deleteResult.getMetadata());
       }
     }
@@ -167,24 +179,21 @@ public class DropboxFileSystem implements FileSystemProvider {
   @SneakyThrows
   public TreeNode rename(@NotNull String id, @NotNull String newName, UploadOption uploadOption) {
     Metadata file = fileCache.get(id);
-    if (file != null) {
-      String toPath = Paths.get(id).resolveSibling(newName).toString();
+    String toPath = Paths.get(id).resolveSibling(newName).toString();
 
-      if (uploadOption != UploadOption.Replace) {
-        Metadata existedFile = getDrive().files().getMetadata(toPath);
-        if (existedFile != null) {
-          if (uploadOption == UploadOption.SkipExist) {
-            return null;
-          } else if (uploadOption == UploadOption.Error) {
-            throw new FileAlreadyExistsException("File " + newName + " already exists");
-          }
+    if (uploadOption != UploadOption.Replace) {
+      Metadata existedFile = getDrive().files().getMetadata(toPath);
+      if (existedFile != null) {
+        if (uploadOption == UploadOption.SkipExist) {
+          return null;
+        } else if (uploadOption == UploadOption.Error) {
+          throw new FileAlreadyExistsException("File " + newName + " already exists");
         }
       }
-
-      getDrive().files().moveV2(id, toPath);
-      return buildRoot(Collections.singleton(file));
     }
-    throw new IllegalStateException("File '" + id + "' not found");
+
+    getDrive().files().moveV2(id, toPath);
+    return buildRoot(Collections.singleton(file));
   }
 
   @Override
@@ -196,7 +205,7 @@ public class DropboxFileSystem implements FileSystemProvider {
   }
 
   private void buildTreeNodeRecursively(String parentId, TreeNode parent)
-      throws DbxException {
+    throws DbxException {
     ListFolderResult result = getDrive().files().listFolder(parentId);
     while (true) {
       parent.addChildren(result.getEntries().stream().map(this::buildTreeNode).collect(Collectors.toSet()));
@@ -205,7 +214,7 @@ public class DropboxFileSystem implements FileSystemProvider {
       }
       result = getDrive().files().listFolderContinue(result.getCursor());
     }
-    for (TreeNode child : parent.getChildren()) {
+    for (TreeNode child : Objects.requireNonNull(parent.getChildren())) {
       if (child.getAttributes().isDir()) {
         buildTreeNodeRecursively(child.getId(), child);
       }
@@ -238,7 +247,7 @@ public class DropboxFileSystem implements FileSystemProvider {
   }
 
   @Override
-  public TreeNode copy(@NotNull Collection<TreeNode> entries, @NotNull String targetId, UploadOption uploadOption) {
+  public @NotNull TreeNode copy(@NotNull Collection<TreeNode> entries, @NotNull String targetId, @NotNull UploadOption uploadOption) {
     List<Metadata> result = new ArrayList<>();
     copyEntries(entries, targetId, uploadOption, result);
     return buildRoot(result);
@@ -270,15 +279,15 @@ public class DropboxFileSystem implements FileSystemProvider {
     if (metadata instanceof FolderMetadata fm) {
       boolean hasChildren = true;
       TreeNode node = new TreeNode(true, !hasChildren,
-          fm.getName(), fm.getId(), null, null, this, null);
+        fm.getName(), fm.getId(), null, null, this, null, fm.getId().hashCode());
       node.getAttributes().setReadOnly(isReadOnly(fm.getSharingInfo()));
       return node;
     }
     FileMetadata file = (FileMetadata) metadata;
     MediaInfo mediaInfo = file.getMediaInfo();
     TreeNode node = new TreeNode(false, true,
-        file.getName(), file.getId(), file.getSize(), file.getServerModified().getTime(), this,
-        mediaInfo == null ? null : mediaInfo.toString());
+      file.getName(), file.getId(), file.getSize(), file.getServerModified().getTime(), this,
+      mediaInfo == null ? null : mediaInfo.toString(), file.getId().hashCode());
     node.getAttributes().setReadOnly(isReadOnly(file.getSharingInfo()));
     return node;
   }

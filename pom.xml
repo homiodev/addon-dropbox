@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <artifactId>addon-dropbox</artifactId>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <artifactId>addon-dropbox</artifactId>
 
-  <description>Dropbox storage</description>
-  <modelVersion>4.0.0</modelVersion>
-  <name>Dropbox</name>
-  <packaging>jar</packaging>
-  <version>1.0.3-SNAPSHOT</version>
+    <description>Dropbox storage</description>
+    <modelVersion>4.0.0</modelVersion>
+    <name>Dropbox</name>
+    <packaging>jar</packaging>
+    <version>1.0.3</version>
 
-  <parent>
-    <artifactId>addon-parent</artifactId>
-    <groupId>org.homio.addon</groupId>
-    <version>1.2.8</version>
-  </parent>
+    <parent>
+        <artifactId>addon-parent</artifactId>
+        <groupId>org.homio.addon</groupId>
+        <version>1.2.8</version>
+    </parent>
 
-  <dependencies>
-    <dependency>
-      <artifactId>dropbox-core-sdk</artifactId>
-      <groupId>com.dropbox.core</groupId>
-      <version>5.4.6</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <artifactId>dropbox-core-sdk</artifactId>
+            <groupId>com.dropbox.core</groupId>
+            <version>7.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>*</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
 </project>
