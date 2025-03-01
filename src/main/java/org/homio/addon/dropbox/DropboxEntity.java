@@ -1,16 +1,11 @@
 package org.homio.addon.dropbox;
 
 import jakarta.persistence.Entity;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.Objects;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.homio.addon.dropbox.DropboxEntity.DropboxService;
 import org.homio.api.Context;
 import org.homio.api.entity.storage.BaseFileSystemEntity;
 import org.homio.api.entity.types.StorageEntity;
-import org.homio.api.model.Icon;
 import org.homio.api.service.EntityService;
 import org.homio.api.ui.UISidebarChildren;
 import org.homio.api.ui.field.UIField;
@@ -20,12 +15,15 @@ import org.homio.api.util.SecureString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings({"JpaAttributeTypeInspection", "JpaAttributeMemberSignatureInspection"})
+import java.util.Objects;
+import java.util.Set;
+
+@SuppressWarnings({"JpaAttributeTypeInspection", "JpaAttributeMemberSignatureInspection", "unused"})
 @Entity
 @UISidebarChildren(icon = "fab fa-dropbox", color = "#536AC5")
 public class DropboxEntity extends StorageEntity
-    implements BaseFileSystemEntity<DropboxEntity, DropboxFileSystem>,
-    EntityService<DropboxService> {
+  implements BaseFileSystemEntity<DropboxFileSystem>,
+  EntityService<DropboxService> {
 
   @UIField(order = 30, required = true, inlineEditWhenEmpty = true)
   public SecureString getDropboxApiToken() {
@@ -34,20 +32,6 @@ public class DropboxEntity extends StorageEntity
 
   public void setDropboxApiToken(String value) {
     setJsonData("apiToken", value);
-  }
-
-  @UIField(order = 40, hideInEdit = true)
-  public String getUsedSpace() {
-    try {
-      return humanReadableByteCountSI(getFileSystem(context()).getUsedSpace());
-    } catch (Exception ignore) {return "---";}
-  }
-
-  @UIField(order = 50, hideInEdit = true)
-  public String getTotalSpace() {
-    try {
-      return humanReadableByteCountSI(getFileSystem(context()).getTotalSpace());
-    } catch (Exception ignore) {return "---";}
   }
 
   @Override
@@ -102,17 +86,12 @@ public class DropboxEntity extends StorageEntity
   }
 
   @Override
-  public @NotNull Icon getFileSystemIcon() {
-    return new Icon("fab fa-dropbox", "#536AC5");
-  }
-
-  @Override
   public boolean requireConfigure() {
     return StringUtils.isEmpty(getDropboxApiToken());
   }
 
   @Override
-  public @NotNull DropboxFileSystem buildFileSystem(@NotNull Context context) {
+  public @NotNull DropboxFileSystem buildFileSystem(@NotNull Context context, int alias) {
     return new DropboxFileSystem(this);
   }
 
@@ -139,7 +118,7 @@ public class DropboxEntity extends StorageEntity
   public static class DropboxService extends EntityService.ServiceInstance<DropboxEntity> {
 
     public DropboxService(Context context, DropboxEntity entity) {
-      super(context, entity, true);
+      super(context, entity, true, "Dripbox");
     }
 
     @Override
@@ -149,24 +128,12 @@ public class DropboxEntity extends StorageEntity
 
     @Override
     public void testService() {
-      entity.getFileSystem(context).getAbout();
+      entity.getFileSystem(context, 0).getAbout();
     }
 
     @Override
     public void destroy(boolean forRestart, Exception ex) {
 
     }
-  }
-
-  private static String humanReadableByteCountSI(long bytes) {
-    if (-1000 < bytes && bytes < 1000) {
-      return bytes + " B";
-    }
-    CharacterIterator ci = new StringCharacterIterator("kMGTPE");
-    while (bytes <= -999_950 || bytes >= 999_950) {
-      bytes /= 1000;
-      ci.next();
-    }
-    return String.format("%.1f %cB", bytes / 1000.0, ci.current());
   }
 }
