@@ -4,12 +4,12 @@ import jakarta.persistence.Entity;
 import org.apache.commons.lang3.StringUtils;
 import org.homio.addon.dropbox.DropboxEntity.DropboxService;
 import org.homio.api.Context;
+import org.homio.api.entity.device.DeviceBaseEntity;
 import org.homio.api.entity.storage.BaseFileSystemEntity;
-import org.homio.api.entity.types.StorageEntity;
 import org.homio.api.service.EntityService;
-import org.homio.api.ui.UISidebarChildren;
 import org.homio.api.ui.field.UIField;
 import org.homio.api.ui.field.action.v1.UIInputBuilder;
+import org.homio.api.ui.route.UIRouteStorage;
 import org.homio.api.util.Lang;
 import org.homio.api.util.SecureString;
 import org.jetbrains.annotations.NotNull;
@@ -20,8 +20,8 @@ import java.util.Set;
 
 @SuppressWarnings({"JpaAttributeTypeInspection", "JpaAttributeMemberSignatureInspection", "unused"})
 @Entity
-@UISidebarChildren(icon = "fab fa-dropbox", color = "#536AC5")
-public class DropboxEntity extends StorageEntity
+@UIRouteStorage(icon = "fab fa-dropbox", color = "#536AC5")
+public class DropboxEntity extends DeviceBaseEntity
   implements BaseFileSystemEntity<DropboxFileSystem>,
   EntityService<DropboxService> {
 
@@ -53,11 +53,6 @@ public class DropboxEntity extends StorageEntity
   @Override
   public long getEntityServiceHashCode() {
     return getConnectionHashCode();
-  }
-
-  @Override
-  public @NotNull Class<DropboxService> getEntityServiceItemClass() {
-    return DropboxService.class;
   }
 
   @Override
